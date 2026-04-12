@@ -15,8 +15,8 @@ morgan.token('posteddata', (request) => {
 
 app.use(
   morgan(
-    ':method :url :status :res[content-length] :response-time ms :posteddata'
-  )
+    ':method :url :status :res[content-length] :response-time ms :posteddata',
+  ),
 );
 let persons = [
   {
@@ -57,7 +57,7 @@ app.get('/info', (request, response) => {
   const timeStamp = new Date();
 
   response.send(
-    `Phonebok has info for ${personCount} people <br/> ${timeStamp}`
+    `Phonebok has info for ${personCount} people <br/> ${timeStamp}`,
   );
 });
 
@@ -88,7 +88,7 @@ const generateId = () => {
 
 app.post('/api/persons', (request, response) => {
   const body = request.body;
-
+  console.log(body);
   // jos nimi tai numero puuttuu, annetaan error koodi 400 ja asiaankuuluva error viesti
   if (!body.name) {
     return response.status(400).json({
