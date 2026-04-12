@@ -1,11 +1,13 @@
 const express = require('express');
 const morgan = require('morgan');
-const cors = require('cors');
+// const cors = require('cors');
 
 const app = express();
-app.use(cors());
+// app.use(cors());
 // Middleware json-parser, käsittelee request- ja response -olioita, parsii raakadataa JS-olioiksi bodyyn
 app.use(express.json());
+
+app.use(express.static('dist'));
 
 // app.use(morgan('tiny'));
 
