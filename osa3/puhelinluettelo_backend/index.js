@@ -12,13 +12,6 @@ app.use(express.json());
 
 app.use(express.static('dist'));
 
-
-const PORT = process.env.PORT;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-
 morgan.token('posteddata', (request) => {
   return request.method === 'POST' ? JSON.stringify(request.body) : '';
 });
@@ -28,7 +21,6 @@ app.use(
     ':method :url :status :res[content-length] :response-time ms :posteddata',
   ),
 );
-
 
 app.get('/', (request, response) => {
   response.send('<h1>Phonebook</h1>');
@@ -111,7 +103,7 @@ app.post('/api/persons', (request, response) => {
   response.json(person);
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
