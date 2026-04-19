@@ -1,16 +1,12 @@
 require('dotenv').config();
-
 const express = require('express');
 const morgan = require('morgan');
-// person  skeema
 const Person = require('./models/person');
 
 const app = express();
 
-// Middleware json-parser, käsittelee request- ja response -olioita, parsii raakadataa JS-olioiksi bodyyn
-app.use(express.json());
-
 app.use(express.static('dist'));
+app.use(express.json());
 
 morgan.token('posteddata', (request) => {
   return request.method === 'POST' ? JSON.stringify(request.body) : '';
@@ -22,53 +18,84 @@ app.use(
   ),
 );
 
-app.get('/', (request, response) => {
-  response.send('<h1>Phonebook</h1>');
-});
+// GET
 
-// get all
-app.get('/api/persons', (request, response) => {
-  Person.find({}).then((persons) => {
-    response.json(persons);
-  });
+// get all persons
+app.get('/api/persons', (request, response, next) => {
+  Person.find({})
+    .then((persons) => {
+      response.json(persons);
+    })
+    .catch((error) => next(error));
 });
 
 // get info
-app.get('/info', (request, response) => {
-  Person.find({}).then((allPersons) => {
-    const personCount = allPersons.length;
-    const timeStamp = new Date();
-    response.send(
-      `Phonebok has info for ${personCount} people <br/> ${timeStamp}`,
-    );
-  });
+app.get('/info', (request, response, next) => {
+  Person.find({})
+    .then((allPersons) => {
+      const personCount = allPersons.length;
+      const timeStamp = new Date();
+      response.send(
+        `Phonebook has info for ${personCount} people <br/> ${timeStamp}`,
+      );
+    })
+    .catch((error) => next(error));
 });
 
-// get by id
-app.get('/api/persons/:id', (request, response) => {
-  Person.findById(request.params.id).then((person) => {
-    if (person) {
-      response.json(person);
-    } else {
-      response.status(404).end();
-    }
-  });
+// get person by id
+app.get('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id)
+    .then((person) => {
+      if (person) {
+        response.json(person);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch((error) => next(error));
 });
 
-app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id);
-  persons = persons.filter((person) => person.id !== id);
+// PUT
 
-  response.status(204).end();
+// edit number
+app.put('/api/persons/:id', (request, response, next) => {
+  const { name, number } = request.body;
+  const person = {
+    name: name,
+    number: number,
+  };
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true }) // new true palauttaa päivitetyn olion
+    .then((updatedPerson) => {
+      if (updatedPerson) {
+        response.json(updatedPerson);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch((error) => next(error));
 });
 
+// DELETE
 
-app.post('/api/persons', (request, response) => {
+// delete person by id
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndDelete(request.params.id)
+    .then(() => {
+      response.status(204).end();
+    })
+    .catch((error) => next(error));
+});
+
+// POST
+
+app.post('/api/persons', (request, response, next) => {
   const body = request.body;
 
   if (!body.name || !body.number) {
     return response.status(400).json({ error: 'name or number missing' });
   }
+
   const person = new Person({ name: body.name, number: body.number });
 
   person
@@ -76,13 +103,28 @@ app.post('/api/persons', (request, response) => {
     .then((savedPerson) => {
       response.json(savedPerson);
     })
-    .catch((error) => {
-      console.log(error);
-      response.status(400).json({ error: error.message });
-    });
+    .catch((error) => next(error));
 });
 
-const PORT = process.env.PORT;
+// virheidenkäsitttely middleware
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' });
+};
+
+app.use(unknownEndpoint);
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' });
+  }
+  next(error);
+};
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
