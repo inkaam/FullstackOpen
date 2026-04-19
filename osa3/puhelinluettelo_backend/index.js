@@ -62,45 +62,24 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end();
 });
 
-// id:n generointi omana finktioa, jota kutsutaan app.post
-const generateId = () => {
-  const maxId =
-    persons.length > 0 ? Math.max(...persons.map((n) => Number(n.id))) : 0;
-  return maxId + 1;
-};
 
 app.post('/api/persons', (request, response) => {
   const body = request.body;
-  console.log(body);
-  // jos nimi tai numero puuttuu, annetaan error koodi 400 ja asiaankuuluva error viesti
-  if (!body.name) {
-    return response.status(400).json({
-      error: 'name missing',
-    });
-  } else if (!body.number) {
-    return response.status(400).json({
-      error: 'number missing',
-    });
+
+  if (!body.name || !body.number) {
+    return response.status(400).json({ error: 'name or number missing' });
   }
+  const person = new Person({ name: body.name, number: body.number });
 
-  // jos nimi on jo olemassa, annetaan error koodi 400 ja asiaankuuluva error viesti
-  if (persons.find((person) => person.name === body.name)) {
-    return response.status(400).json({
-      error: 'name has to be unique',
+  person
+    .save()
+    .then((savedPerson) => {
+      response.json(savedPerson);
+    })
+    .catch((error) => {
+      console.log(error);
+      response.status(400).json({ error: error.message });
     });
-  }
-
-  // uusi henkilö
-  const person = {
-    name: body.name,
-    number: body.number,
-    id: generateId(),
-  };
-
-  // muokkaa persons lisäämällä siihen henkilön, jossa request.bodyn tiedot ja generoitu ID
-  persons = persons.concat(person);
-
-  response.json(person);
 });
 
 const PORT = process.env.PORT;
