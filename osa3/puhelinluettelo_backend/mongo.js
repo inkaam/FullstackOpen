@@ -10,8 +10,6 @@
 // // const name = process.argv[3];
 // // const number = process.argv[4];
 
-// // const url = `mongodb+srv://im:${password}@cluster.ojpsp.mongodb.net/fullstackopen?retryWrites=true&w=majority&appName=Cluster`;
-
 // // mongoose.set('strictQuery', false);
 // // mongoose.connect(url, { family: 4 });
 

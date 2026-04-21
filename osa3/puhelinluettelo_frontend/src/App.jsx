@@ -48,7 +48,7 @@ const App = () => {
 
   // persons filtteröiti
   const filtered = persons.filter((person) =>
-    person.name.toLowerCase().includes(newFilter.toLowerCase())
+    person.name.toLowerCase().includes(newFilter.toLowerCase()),
   );
 
   // henkilön lisääinen
@@ -61,13 +61,13 @@ const App = () => {
     };
 
     const alreadyAddedPerson = persons.find(
-      (person) => person.name === newName
+      (person) => person.name === newName,
     );
 
     if (alreadyAddedPerson && alreadyAddedPerson.number !== newNumber) {
       if (
         window.confirm(
-          `${newName} is already added to phonebook, replace the old number with a new one?`
+          `${newName} is already added to phonebook, replace the old number with a new one?`,
         )
       ) {
         personService
@@ -77,31 +77,31 @@ const App = () => {
               persons.map((person) =>
                 // jos id ei ole sama, id pysyy sellaisenaan
                 // jos id on sama, korvataan vanha person päivitetyllä eprsonilla
-                person.id !== alreadyAddedPerson.id ? person : updatedPerson
-              )
+                person.id !== alreadyAddedPerson.id ? person : updatedPerson,
+              ),
             );
             setNewName('');
             setNewNumber('');
-            setNotification({
+            (setNotification({
               message: `Edited ${updatedPerson.name}s number to ${newNumber}`,
               type: 'success',
             }),
               setTimeout(() => {
                 setNotification({ message: null, type: null });
-              }, 3000);
+              }, 3000));
           })
           .catch((error) => {
-            setNotification({
+            (setNotification({
               message: `Information of ${alreadyAddedPerson.name} has already been removed from server`,
               type: 'error',
             }),
               setTimeout(() => {
                 setNotification({ message: null, type: null });
-              }, 3000);
+              }, 3000));
 
             console.log(
               `Information of ${alreadyAddedPerson.name} has already been removed from server`,
-              error
+              error,
             );
           });
       }
@@ -114,23 +114,23 @@ const App = () => {
           setPersons(persons.concat(returnedPerson));
           setNewName('');
           setNewNumber('');
-          setNotification({
+          (setNotification({
             message: `Added ${returnedPerson.name}`,
             type: 'success',
           }),
             setTimeout(() => {
               setNotification({ message: null, type: null });
-            }, 3000);
+            }, 3000));
         })
         .catch((error) => {
           setNotification({
-            message: `Error adding ${personObject.name}`,
+            message: error.response.data.error,
             type: 'error',
           });
-          setTimeout(() => {
-            setNotification({ message: null, type: null });
-          }, 3000);
-          console.log(`Error adding ${personObject.name}`, error);
+          setTimeout(
+            () => setNotification({ message: null, type: null }),
+            5000,
+          );
         });
     }
   };
@@ -143,26 +143,26 @@ const App = () => {
           setPersons(persons.filter((person) => person.id !== id));
         })
         .catch((error) => {
-          setNotification({
+          (setNotification({
             message: `Information of ${name} has already been removed from server`,
             type: 'error',
           }),
             setTimeout(() => {
               setNotification({ message: null, type: null });
-            }, 3000);
+            }, 3000));
 
           console.log(
             `Information of ${name} has already been removed from server`,
-            error
+            error,
           );
         });
-      setNotification({
+      (setNotification({
         message: `Deleted ${deletePerson.name}`,
         type: 'success',
       }),
         setTimeout(() => {
           setNotification({ message: null, type: null });
-        }, 3000);
+        }, 3000));
     }
   };
 
