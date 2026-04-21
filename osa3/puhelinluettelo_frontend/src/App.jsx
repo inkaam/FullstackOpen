@@ -141,6 +141,13 @@ const App = () => {
         .deletePerson(id)
         .then(() => {
           setPersons(persons.filter((person) => person.id !== id));
+          setNotification({
+            message: `Deleted ${name}`,
+            type: 'success',
+          });
+          setTimeout(() => {
+            setNotification({ message: null, type: null });
+          }, 3000);
         })
         .catch((error) => {
           (setNotification({
@@ -156,13 +163,6 @@ const App = () => {
             error,
           );
         });
-      (setNotification({
-        message: `Deleted ${deletePerson.name}`,
-        type: 'success',
-      }),
-        setTimeout(() => {
-          setNotification({ message: null, type: null });
-        }, 3000));
     }
   };
 
