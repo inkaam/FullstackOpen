@@ -90,12 +90,13 @@ const mostLikes = (blogs) => {
     };
   });
   // console.log(groupedAuthors);
-  console.log(authorsLikes);
+  // console.log(authorsLikes);
 
   // palautetaan authorsLikes se itemi, jonka likes on suurin
   return _.maxBy(authorsLikes, 'likes');
 };
-mostLikes(blogs);
+
+// mostLikes(blogs);
 module.exports = {
   dummy,
   totalLikes,
