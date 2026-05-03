@@ -114,23 +114,28 @@ const App = () => {
   if (user === null) {
     return (
       <div>
+        <h2>blogs</h2>
         <h2>Log in to application</h2>
         <Notification message={notification.message} type={notification.type} />
         <form onSubmit={handleLogin}>
           <div>
-            username{' '}
-            <input
-              value={username}
-              onChange={({ target }) => setUsername(target.value)}
-            />
+            <label>
+              username
+              <input
+                value={username}
+                onChange={({ target }) => setUsername(target.value)}
+              />
+            </label>
           </div>
           <div>
-            password{' '}
-            <input
-              type="password"
-              value={password}
-              onChange={({ target }) => setPassword(target.value)}
-            />
+            <label>
+              password
+              <input
+                type="password"
+                value={password}
+                onChange={({ target }) => setPassword(target.value)}
+              />
+            </label>
           </div>
           <button type="submit">login</button>
         </form>
