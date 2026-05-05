@@ -3,7 +3,8 @@ import { useState } from 'react'
 const Blog = ({ blog, updateBlog, deleteBlog, user }) => {
   const [visible, setVisible] = useState(false)
 
-  const visibleDeleteButton = blog.user && blog.user.username === user.username
+  const visibleDeleteButton =
+    user && blog.user && blog.user.username === user.username
   const handleLike = () => {
     updateBlog(blog)
   }
@@ -25,7 +26,7 @@ const Blog = ({ blog, updateBlog, deleteBlog, user }) => {
   }
 
   return (
-    <div style={blogStyle} className='blog'>
+    <div style={blogStyle} className="blog">
       <div>
         {blog.title} {blog.author}
         <button onClick={toggleVisibility}>{label}</button>
