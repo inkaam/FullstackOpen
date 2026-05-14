@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Routes,
   Route,
@@ -19,14 +19,20 @@ import {
   Paper,
   List,
   ListItem,
+  Divider,
 } from '@mui/material'
 
 import UsersView from './components/UserView'
 import BlogForm from './components/BlogForm'
 import BlogView from './components/BlogView'
+
 import Togglable from './components/Togglable'
 import ErrorBoundary from './components/ErrorBoundary'
 import loginService from './services/login'
+import UserDetails from './components/UserDetails'
+import persistentUser from './services/persistentUser'
+import userService from './services/users'
+import { useField } from './hooks'
 import useNotificationStore from './stores/notificationStore'
 import useBlogStore from './stores/blogStore'
 
@@ -45,10 +51,10 @@ const App = () => {
   // tila ja toiminnot storesta
   const { blogs, user, initializeBlogs, setUser, clearUser } = useBlogStore()
 
-  // kirjautumisen paikalliset tilat
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-
+  // kirjautumiseen käytetään useField hook
+  const username = useField('text')
+  const password = useField('password')
+  const [users, setUsers] = useState([])
   const setNotification = useNotificationStore((state) => state.setNotification)
   const navigate = useNavigate()
 
@@ -62,24 +68,27 @@ const App = () => {
 
   // tarkistus löytyykö paikallisesti muistissa oleva kirjautunut käyttäjä
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
+    const user = persistentUser.getUser()
+    if (user) {
       setUser(user)
     }
   }, [])
 
+  useEffect(() => {
+    userService.getAll().then((data) => setUsers(data))
+  }, [])
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
-      const loggedUser = await loginService.login({ username, password })
-      window.localStorage.setItem(
-        'loggedBlogappUser',
-        JSON.stringify(loggedUser),
-      )
+      const loggedUser = await loginService.login({
+        username: username.value,
+        password: password.value,
+      })
+      persistentUser.saveUser(loggedUser)
+
       setUser(loggedUser)
-      setUsername('')
-      setPassword('')
+      username.reset()
+      password.reset()
       navigate('/')
     } catch {
       setNotification('wrong username or password', 'error')
@@ -87,6 +96,7 @@ const App = () => {
   }
 
   const handleLogout = () => {
+    persistentUser.removeUser()
     clearUser()
     navigate('/')
   }
@@ -158,8 +168,9 @@ const App = () => {
               element={
                 <Box>
                   <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 3 }}>
-                    blogs
+                    Blogs
                   </Typography>
+                  <Divider sx={{ mb: 5 }} />
                   <List sx={{ mt: 2 }}>
                     {sortedBlogs.map((b) => (
                       <ListItem
@@ -210,15 +221,15 @@ const App = () => {
                       <TextField
                         label="username"
                         variant="standard"
-                        value={username}
-                        onChange={({ target }) => setUsername(target.value)}
+                        value={username.value}
+                        onChange={username.onChange}
                       />
                       <TextField
                         label="password"
                         type="password"
                         variant="standard"
-                        value={password}
-                        onChange={({ target }) => setPassword(target.value)}
+                        value={password.value}
+                        onChange={password.onChange}
                       />
                       <Button
                         type="submit"
@@ -236,6 +247,10 @@ const App = () => {
                 </Box>
               }
             />
+
+            <Route path="/users/:id" element={<UserDetails users={users} />} />
+            <Route path="/users" element={<UsersView />} />
+
             <Route
               path="*"
               element={

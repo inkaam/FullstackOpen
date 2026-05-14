@@ -15,7 +15,7 @@ const Blog = ({ blog }) => {
   }
 
   return (
-    <div
+    <Box
       className="blog"
       style={{ border: 'solid 1px', marginBottom: 5, padding: 5 }}
     >
@@ -43,7 +43,7 @@ const Blog = ({ blog }) => {
           )}
         </div>
       )}
-    </div>
+    </Box>
   )
 }
 

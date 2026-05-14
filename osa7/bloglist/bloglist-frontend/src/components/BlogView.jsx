@@ -1,10 +1,20 @@
-import { Box, Typography, Button, Link as MuiLink } from '@mui/material'
+import { useState } from 'react'
+import {
+  Box,
+  Typography,
+  Button,
+  Link as MuiLink,
+  List,
+  ListItem,
+  TextField,
+} from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import useBlogStore from '../stores/blogStore'
 import useNotificationStore from '../stores/notificationStore'
 
 const BlogView = ({ blog }) => {
-  const { user, likeBlog, removeBlog } = useBlogStore() // Hae storesta
+  const [comment, setComment] = useState('')
+  const { user, likeBlog, removeBlog, commentBlog } = useBlogStore() // Hae storesta
   const setNotification = useNotificationStore((s) => s.setNotification)
   const navigate = useNavigate()
 
@@ -20,6 +30,18 @@ const BlogView = ({ blog }) => {
       await removeBlog(blog.id)
       navigate('/')
       setNotification(`Removed ${blog.title}`, 'success')
+    }
+  }
+  const handleComment = async (event) => {
+    event.preventDefault()
+    if (!comment.trim()) return
+
+    try {
+      await commentBlog(blog.id, comment)
+      setComment('')
+      setNotification('Comment added!', 'success')
+    } catch {
+      setNotification('Failed to add comment', 'error')
     }
   }
   return (
@@ -59,15 +81,73 @@ const BlogView = ({ blog }) => {
         <Button
           variant="outlined"
           onClick={() => likeBlog(blog)}
-          sx={{ borderColor: '#2196f3', color: '#2196f3', fontWeight: 'bold' }}
+          sx={{
+            borderColor: '#ff32dd',
+            color: '#f13cd3',
+            fontWeight: '800',
+          }}
         >
           LIKE
         </Button>
 
         {user?.username === blog.user?.username && (
-          <Button onClick={handleDelete} color="error">
+          <Button
+            onClick={handleDelete}
+            sx={{
+              backgroundColor: '#d32424',
+              color: 'white',
+              fontWeight: '800',
+            }}
+          >
             REMOVE
           </Button>
+        )}
+      </Box>
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h4" sx={{ mb: 2 }}>
+          comments
+        </Typography>
+        <Box
+          component="form"
+          onSubmit={handleComment}
+          sx={{ display: 'flex', gap: 1, mb: 3 }}
+        >
+          <TextField
+            size="small"
+            placeholder="add a comment"
+            value={comment}
+            onChange={({ target }) => setComment(target.value)}
+            sx={{ flexGrow: 1, maxWidth: '300px' }}
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ backgroundColor: '#d887ca', fontWeight: '800' }}
+          >
+            ADD COMMENT
+          </Button>
+        </Box>
+        {!blog.comments || blog.comments.length === 0 ? (
+          <Typography sx={{ color: '#888', fontStyle: 'italic' }}>
+            no comments yet...
+          </Typography>
+        ) : (
+          <List>
+            {blog.comments.map((comment, index) => (
+              <ListItem
+                key={index}
+                sx={{
+                  py: 0.5,
+                  px: 0,
+                  display: 'list-item',
+                  listStyleType: 'disc',
+                  ml: 3,
+                }}
+              >
+                <Typography variant="body1">{comment}</Typography>
+              </ListItem>
+            ))}
+          </List>
         )}
       </Box>
     </Box>

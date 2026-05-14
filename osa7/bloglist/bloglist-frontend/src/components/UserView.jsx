@@ -1,6 +1,6 @@
-// src/components/UsersView.jsx
 import { useEffect, useState } from 'react'
 import userService from '../services/users'
+import { Link } from 'react-router-dom'
 import {
   Typography,
   Table,
@@ -10,6 +10,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Divider,
 } from '@mui/material'
 
 const UsersView = () => {
@@ -21,9 +22,10 @@ const UsersView = () => {
 
   return (
     <div>
-      <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 3, mt: 3 }}>
+      <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 3 }}>
         Users
       </Typography>
+      <Divider sx={{ mb: 5 }} />
       <TableContainer component={Paper} elevation={0}>
         <Table>
           <TableHead>
@@ -42,7 +44,9 @@ const UsersView = () => {
           <TableBody>
             {users.map((u) => (
               <TableRow key={u.id}>
-                <TableCell>{u.name}</TableCell>
+                <TableCell>
+                  <Link to={`/users/${u.id}`}>{u.name}</Link>
+                </TableCell>
                 <TableCell>{u.username}</TableCell>
                 <TableCell>{u.blogs.length}</TableCell>
               </TableRow>
